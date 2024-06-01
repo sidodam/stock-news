@@ -1,1 +1,1 @@
-Simple Telegram Bot that fetches recent stock news
+Simple Telegram Bot that fetches fetches recent stock news from yahoo finance.
