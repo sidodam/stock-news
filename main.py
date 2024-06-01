@@ -1,5 +1,5 @@
 import asyncio
-from finvizfinance.quote import finvizfinance
+import yfinance as yf
 from aiogram import types, Dispatcher, Bot
 from aiogram.filters import Command
 
@@ -20,16 +20,23 @@ async def cmd_news(msg: types.Message) -> None:
     """Handle stock ticker input"""
     ticker = msg.text.upper()
     try:
-        stock = finvizfinance(ticker)
-        news = stock.ticker_news()
+        stock = yf.Ticker(ticker)
+        news_data = stock.get_news()
 
-        print(stock)
-        reply_text = f"Latest news for {ticker}:\n\n{news}"
+        news_articles = []
+        for article in news_data:
+            title = article.get('title')
+            link = article.get('link')
+            news_articles.append(f"*{title}*\n {link}\n\n")
+
+        if news_articles:
+            reply_text = f"Latest news for {ticker}:\n\n" + "".join(news_articles)
+        else:
+            reply_text = f"No news found for {ticker}"
     except Exception as e:
         reply_text = f"{ticker} DOES NOT EXIST or an error occurred: {e}"
 
-
-    await msg.reply(text=reply_text)
+    await msg.answer(text=reply_text, parse_mode="Markdown" , disable_web_page_preview=True)
 
 async def main() -> None:
     """Entry point"""
